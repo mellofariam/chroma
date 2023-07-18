@@ -1,0 +1,10 @@
+# Legend
+legend.fancybox: False
+legend.edgecolor: "black"
+
+# Fonts
+font.sans-serif: "Helvetica Neue"
+font.size: 6.0
+
+# Figure
+figure.dpi: 300
