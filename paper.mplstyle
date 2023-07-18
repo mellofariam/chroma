@@ -1,6 +1,6 @@
 # Legend
 legend.fancybox: False
-legend.edgecolor: "black"
+legend.edgecolor: "inherit"
 
 # Fonts
 font.sans-serif: "Helvetica Neue"
@@ -8,3 +8,17 @@ font.size: 6.0
 
 # Figure
 figure.dpi: 300
+
+# Patch
+patch.linewidth: 0.8
+patch.edgecolor: black
+patch.force_edgecolor: True
+
+# MathText
+mathtext.fontset: "custom"
+mathtext.it: "Helvetica Neue:italic"
+mathtext.bf: "Helvetica Neue:bold"
+mathtext.sf: "Helvetica Neue"
+
+# Axes
+axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
