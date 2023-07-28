@@ -33,7 +33,12 @@ def cndb2xtc(cndb_file: str, topfile: str = None, output: str = None, frames=[1,
                 j[0] = "ATOM".ljust(6)  # atom#6s
                 j[1] = str(i + 1).rjust(5)  # aomnum#5d
                 j[2] = "CA".center(4)  # atomname$#4s
-                j[3] = chr2aa[annotations[i]].ljust(3)  # resname#1s
+
+                try:
+                    j[3] = chr2aa[annotations[i]].ljust(3)  # resname#1s
+                except:
+                    j[3] = "ALA".ljust(3)
+                    
                 j[4] = "A".rjust(1)  # Astring
                 j[5] = str(i + 1).rjust(4)  # resnum
                 j[6] = str("%8.3f" % (float(positions[0][i][0]))).rjust(8)  # x
