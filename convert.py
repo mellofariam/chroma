@@ -9,7 +9,6 @@ def cndb2xtc(cndb_file: str, topfile: str = None, output: str = None, frames=[1,
     if output is None:
         output, _ = os.path.splitext(cndb_file)
 
-    _, extension = os.path.splitext(topfile)
 
     reader = ctools.cndbTools()
     reader.load(filename=cndb_file)
@@ -38,7 +37,7 @@ def cndb2xtc(cndb_file: str, topfile: str = None, output: str = None, frames=[1,
                     j[3] = chr2aa[annotations[i]].ljust(3)  # resname#1s
                 except:
                     j[3] = "ALA".ljust(3)
-                    
+
                 j[4] = "A".rjust(1)  # Astring
                 j[5] = str(i + 1).rjust(4)  # resnum
                 j[6] = str("%8.3f" % (float(positions[0][i][0]))).rjust(8)  # x
@@ -51,7 +50,9 @@ def cndb2xtc(cndb_file: str, topfile: str = None, output: str = None, frames=[1,
                 )
             pdb_file.write("END")
         traj = md.load(output + ".pdb")
+        extension = ".pdb"
     else:
+        _, extension = os.path.splitext(topfile)
         traj = md.load(topfile)
 
     if extension != ".gro":
