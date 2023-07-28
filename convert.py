@@ -5,7 +5,7 @@ import mdtraj as md
 import OpenMiChroM.CndbTools as ctools
 
 
-def cndb2xtc(cndb_file: str, topfile: str, output: str = None, frames=[1, None, 1]):
+def cndb2xtc(cndb_file: str, topfile: str = None, output: str = None, frames=[1, None, 1]):
     if output is None:
         output, _ = os.path.splitext(cndb_file)
 
