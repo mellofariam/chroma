@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def auto_corr(data):
     """Fourier transform implementation"""
 
@@ -22,3 +23,23 @@ def auto_corr(data):
     acorr = np.fft.ifft(pwr).real / var / len(data)
 
     return acorr[: len(data)]
+
+
+def calc_reconfig_time(acorr_data, lag_times=None, thresh=0):
+    if lag_times is None:
+        lag_times = np.array(range(len(acorr_data)))
+
+    assert len(acorr_data) == len(
+        lag_times
+    ), "Correlation data and Lag Times should have the same size"
+
+    i = 0
+    while acorr_data[i] > 0 + thresh:
+        i += 1
+
+    log_data = np.log(acorr_data[:i])
+    curve_fit = np.polyfit(lag_times[:i], log_data, 1)
+
+    reconfig_time = 1 / np.negative(curve_fit[0])
+
+    return reconfig_time
