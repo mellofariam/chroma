@@ -1,3 +1,3 @@
-import convert
-import dynamics
-import structure
+import chroma.convert
+import chroma.dynamics
+import chroma.structure
