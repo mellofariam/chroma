@@ -39,10 +39,10 @@ def calc_reconfig_time(acorr_data, lag_times=None, thresh=0):
 
     x = lag_times[:i]
     log_data = np.log(acorr_data[:i])
-    curve_fit = np.polyfit(x, log_data, 1)
+    b, logA = np.polyfit(x, log_data, 1)
 
-    reconfig_time = 1 / np.negative(curve_fit[0])
+    reconfig_time = np.negative(1 / b)
 
-    y = [np.exp(-t / reconfig_time) * np.exp(curve_fit[1]) for t in x]
+    y = [np.exp(logA) * np.exp(-t / reconfig_time) for t in x]
 
     return reconfig_time, x, y
