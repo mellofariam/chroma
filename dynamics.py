@@ -43,6 +43,6 @@ def calc_reconfig_time(acorr_data, lag_times=None, thresh=0):
 
     reconfig_time = 1 / np.negative(curve_fit[0])
 
-    y = [np.exp(-t / reconfig_time) for t in x]
+    y = [np.exp(-t / reconfig_time) * np.exp(curve_fit[1]) for t in x]
 
     return reconfig_time, x, y
