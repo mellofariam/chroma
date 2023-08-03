@@ -34,15 +34,15 @@ def calc_reconfig_time(acorr_data, lag_times=None, thresh=0):
     ), "Correlation data and Lag Times should have the same size"
 
     i = 0
-    while acorr_data[i] > 0 + thresh:
+    while acorr_data[i] >= 0 + thresh:
         i += 1
 
+    x = lag_times[:i]
     log_data = np.log(acorr_data[:i])
-    curve_fit = np.polyfit(lag_times[:i], log_data, 1)
+    curve_fit = np.polyfit(x, log_data, 1)
 
     reconfig_time = 1 / np.negative(curve_fit[0])
 
-    x = lag_times[:i]
-    y = [np.exp(-t / reconfig_time) * np.exp(curve_fit[1]) for t in x]
+    y = [np.exp(-t / reconfig_time) for t in x]
 
     return reconfig_time, x, y
