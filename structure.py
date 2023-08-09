@@ -55,3 +55,19 @@ def lamina_distance(
             distances[key].extend(frame_distances[index[key]])
 
     return distances
+
+
+def reduce_resolution(traj, divide_by=20):
+    print(f"Reducing resolution by a factor of {divide_by}", flush=True)
+
+    temp = traj[:, : (traj.shape[1] // divide_by) * divide_by, :]
+
+    temp = temp.reshape((temp.shape[0], temp.shape[1] // divide_by, divide_by, 3))
+    coarsed_traj = np.mean(temp, axis=2)
+
+    if traj.shape[1] % divide_by != 0:
+        rest = traj[:, (traj.shape[1] // divide_by) * divide_by :, :]
+        rest = np.reshape(np.mean(rest, axis=1), (traj.shape[0], 1, 3))
+        coarsed_traj = np.concatenate((coarsed_traj, rest), axis=1)
+
+    return coarsed_traj
