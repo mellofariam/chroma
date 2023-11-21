@@ -1,6 +1,7 @@
 # Legend
 legend.fancybox: False
 legend.edgecolor: "inherit"
+legend.framealpha: 1.0
 
 # Fonts
 font.sans-serif: "Helvetica Neue"
