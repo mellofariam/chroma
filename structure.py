@@ -76,7 +76,7 @@ def lamina_distance(
 
 def radial_density(
     nucleus_path: str,
-    chr_filename: str = "nucleus_"
+    chr_filename: str = "nucleus_",
     radius: float = None,
     mode: str = "compartments",
     frames: range = None,
@@ -84,7 +84,9 @@ def radial_density(
     nbins: int = 100,
 ):
     traj_files = {
-        chr: h5py.File(f"{nucleus_path}/{chr_filename}{chr}.cndb", "r")
+        chr: h5py.File(
+            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
+        )
         for chr in chr_range
     }
 
