@@ -31,6 +31,7 @@ def cndb2xtc(
         }
 
         with open(filename + ".pdb", "w") as pdb_file:
+            xyz = positions[0]
             for i in range(len(xyz)):
                 j = ["" for _ in range(9)]
                 j[0] = "ATOM".ljust(6)  # atom#6s
