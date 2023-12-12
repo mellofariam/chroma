@@ -162,7 +162,7 @@ def radial_density(
             frame_nucleus - np.mean(frame_nucleus, axis=0), axis=1
         )
 
-        bin_numbers = np.ceil(distance_to_center / radius * nbins)
+        bin_numbers = np.floor(distance_to_center / radius * nbins)
         dr = radius / nbins
 
         for key in index.keys():

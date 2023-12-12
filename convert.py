@@ -31,6 +31,7 @@ def cndb2xtc(
         }
 
         with open(filename + ".pdb", "w") as pdb_file:
+            xyz = positions[0]
             for i in range(len(xyz)):
                 j = ["" for _ in range(9)]
                 j[0] = "ATOM".ljust(6)  # atom#6s
@@ -130,3 +131,45 @@ def write_pdb_from_xyz(xyz, filename="frame", resseq=None):
                 )
             )
         pdb_file.write("END")
+
+
+def count2prob(hic_matrix):
+    prob_matrix = np.triu(hic_matrix, k=1)
+
+    for i in range(prob_matrix.shape[0] - 1):
+        if prob_matrix[i, i + 1]:
+            prob_matrix[i, :] /= prob_matrix[
+                i, i + 1
+            ]  ## normalize by the first neighbor
+        else:
+            prob_matrix[i, :] = 0.0
+
+    ## correct for the values greater than the 1st neighbor
+    for i in range(prob_matrix.shape[0]):
+        for j in range(i, prob_matrix.shape[1]):
+            if (
+                i != j
+                and np.abs(i - j) > 1
+                and prob_matrix[i, j] > 1.0
+            ):
+                prob_matrix[i, j] = np.mean(
+                    prob_matrix.diagonal(offset=np.abs(i - j))[
+                        prob_matrix.diagonal(offset=np.abs(i - j))
+                        < 1.0
+                    ]
+                )
+
+    prob_matrix += prob_matrix.transpose() + np.diag(
+        np.ones(prob_matrix.shape[0])
+    )
+
+    ## remove centromere:
+    idx_to_remove = []
+    for i in range(hic_matrix.shape[0]):
+        if hic_matrix[i, :].max() == 0:
+            idx_to_remove.append(i)
+
+    prob_matrix[idx_to_remove, :] = 0.0
+    prob_matrix[:, idx_to_remove] = 0.0
+
+    return prob_matrix
