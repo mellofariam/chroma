@@ -5,13 +5,16 @@ import collections
 
 def lamina_distance(
     nucleus_path: str,
+    chr_filename: str = "nucleus_",
     radius: float = None,
     mode: str = "compartments",
     frames: range = None,
     chr_range: range = range(1, 47),
 ):
     traj_files = {
-        chr: h5py.File(f"{nucleus_path}/chromosome{chr}.cndb", "r")
+        chr: h5py.File(
+            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
+        )
         for chr in chr_range
     }
 
@@ -76,12 +79,15 @@ def lamina_distance(
 
 def distance_to_center(
     nucleus_path: str,
+    chr_filename: str = "nucleus_",
     mode: str = "compartments",
     frames: range = None,
     chr_range: range = range(1, 47),
 ):
     traj_files = {
-        chr: h5py.File(f"{nucleus_path}/chromosome{chr}.cndb", "r")
+        chr: h5py.File(
+            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
+        )
         for chr in chr_range
     }
 
