@@ -74,7 +74,7 @@ def lamina_distance(
 
     for n, frame in enumerate(frames):
         if n % 100 == 0:
-            print(f"Analyzing frame {frame}")
+            print(f"Analyzing frame {frame}", flush=True)
         frame_nucleus = np.concatenate(
             [
                 np.array(traj_files[chr][str(frame)])
@@ -161,7 +161,7 @@ def distance_to_center(
 
     for n, frame in enumerate(frames):
         if n % 100 == 0:
-            print(f"Analyzing frame {frame}")
+            print(f"Analyzing frame {frame}", flush=True)
         frame_nucleus = np.concatenate(
             [
                 np.array(traj_files[chr][str(frame)])
@@ -254,7 +254,7 @@ def radial_density(
 
     for n, frame in enumerate(frames):
         if n % 100 == 0:
-            print(f"Analyzing frame {frame}")
+            print(f"Analyzing frame {frame}", flush=True)
 
         frame_nucleus = np.concatenate(
             [
