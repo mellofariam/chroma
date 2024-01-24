@@ -23,9 +23,23 @@ def lamina_distance(
 
     subcompartments = []
     for chr in chr_range:
-        subcompartments.extend(
-            [annot for annot in traj_files[chr]["types"].asstr()]
-        )
+        try:
+            subcompartments.extend(
+                [annot for annot in traj_files[chr]["types"].asstr()]
+            )
+        except:
+            num2annot = {
+                0: "A1",
+                1: "A2",
+                2: "B1",
+                3: "B2",
+                4: "B3",
+                5: "B4",
+                6: "NA",
+            }
+            subcompartments.extend(
+                [num2annot[num] for num in traj_files[chr]["types"]]
+            )
 
     if mode == "compartments":
         index = {"A": [], "B": [], "NA": []}
@@ -96,9 +110,23 @@ def distance_to_center(
 
     subcompartments = []
     for chr in chr_range:
-        subcompartments.extend(
-            [annot for annot in traj_files[chr]["types"].asstr()]
-        )
+        try:
+            subcompartments.extend(
+                [annot for annot in traj_files[chr]["types"].asstr()]
+            )
+        except:
+            num2annot = {
+                0: "A1",
+                1: "A2",
+                2: "B1",
+                3: "B2",
+                4: "B3",
+                5: "B4",
+                6: "NA",
+            }
+            subcompartments.extend(
+                [num2annot[num] for num in traj_files[chr]["types"]]
+            )
 
     if mode == "compartments":
         index = {"A": [], "B": [], "NA": []}
