@@ -3,201 +3,7 @@ import numpy as np
 import collections
 
 
-def lamina_distance(
-    nucleus_path: str,
-    chr_filename: str = "nucleus_",
-    radius: float = None,
-    mode: str = "compartments",
-    frames: range = None,
-    chr_range: range = range(1, 47),
-):
-    traj_files = {
-        chr: h5py.File(
-            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
-        )
-        for chr in chr_range
-    }
-
-    if frames is None:
-        frames = range(1, len(traj_files[chr_range[0]].keys()), 1)
-
-    subcompartments = []
-    for chr in chr_range:
-        try:
-            subcompartments.extend(
-                [annot for annot in traj_files[chr]["types"].asstr()]
-            )
-        except:
-            num2annot = {
-                0: "A1",
-                1: "A2",
-                2: "B1",
-                3: "B2",
-                4: "B3",
-                5: "B4",
-                6: "NA",
-            }
-            subcompartments.extend(
-                [num2annot[num] for num in traj_files[chr]["types"]]
-            )
-
-    if mode == "compartments":
-        index = {"A": [], "B": [], "NA": []}
-        to_compt = {
-            "A1": "A",
-            "A2": "A",
-            "B1": "B",
-            "B2": "B",
-            "B3": "B",
-            "B4": "B",
-            "NA": "NA",
-        }
-        for idx, annot in enumerate(subcompartments):
-            index[to_compt[annot]].append(idx)
-
-    elif mode == "subcompartments":
-        index = {
-            "A1": [],
-            "A2": [],
-            "B1": [],
-            "B2": [],
-            "B3": [],
-            "B4": [],
-            "NA": [],
-        }
-        for idx, annot in enumerate(subcompartments):
-            index[annot].append(idx)
-
-    distances = {}
-    for key in index.keys():
-        distances[key] = []
-
-    for n, frame in enumerate(frames):
-        if n % 100 == 0:
-            print(f"Analyzing frame {frame}", flush=True)
-        frame_nucleus = np.concatenate(
-            [
-                np.array(traj_files[chr][str(frame)])
-                for chr in chr_range
-            ]
-        )
-
-        frame_distances = radius - np.linalg.norm(
-            frame_nucleus, axis=1
-        )
-        for key in index.keys():
-            distances[key].extend(frame_distances[index[key]])
-
-    return distances
-
-
-def distance_to_center(
-    nucleus_path: str,
-    chr_filename: str = "nucleus_",
-    mode: str = "compartments",
-    frames: range = None,
-    chr_range: range = range(1, 47),
-):
-    traj_files = {
-        chr: h5py.File(
-            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
-        )
-        for chr in chr_range
-    }
-
-    if frames is None:
-        frames = range(1, len(traj_files[chr_range[0]].keys()), 1)
-
-    subcompartments = []
-    for chr in chr_range:
-        try:
-            subcompartments.extend(
-                [annot for annot in traj_files[chr]["types"].asstr()]
-            )
-        except:
-            num2annot = {
-                0: "A1",
-                1: "A2",
-                2: "B1",
-                3: "B2",
-                4: "B3",
-                5: "B4",
-                6: "NA",
-            }
-            subcompartments.extend(
-                [num2annot[num] for num in traj_files[chr]["types"]]
-            )
-
-    if mode == "compartments":
-        index = {"A": [], "B": [], "NA": []}
-        to_compt = {
-            "A1": "A",
-            "A2": "A",
-            "B1": "B",
-            "B2": "B",
-            "B3": "B",
-            "B4": "B",
-            "NA": "NA",
-        }
-        for idx, annot in enumerate(subcompartments):
-            index[to_compt[annot]].append(idx)
-
-    elif mode == "subcompartments":
-        index = {
-            "A1": [],
-            "A2": [],
-            "B1": [],
-            "B2": [],
-            "B3": [],
-            "B4": [],
-            "NA": [],
-        }
-        for idx, annot in enumerate(subcompartments):
-            index[annot].append(idx)
-
-    distances = {}
-    for key in index.keys():
-        distances[key] = []
-
-    for n, frame in enumerate(frames):
-        if n % 100 == 0:
-            print(f"Analyzing frame {frame}", flush=True)
-        frame_nucleus = np.concatenate(
-            [
-                np.array(traj_files[chr][str(frame)])
-                for chr in chr_range
-            ]
-        )
-
-        distance_to_center = np.linalg.norm(
-            frame_nucleus - np.mean(frame_nucleus, axis=0), axis=1
-        )
-
-        for key in index.keys():
-            distances[key].extend(distance_to_center[index[key]])
-
-    return distances
-
-
-def radial_density(
-    nucleus_path: str,
-    chr_filename: str = "nucleus_",
-    radius: float = None,
-    mode: str = "compartments",
-    frames: range = None,
-    chr_range: range = range(46),
-    nbins: int = 100,
-):
-    traj_files = {
-        chr: h5py.File(
-            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
-        )
-        for chr in chr_range
-    }
-
-    if frames is None:
-        frames = range(1, len(traj_files[chr_range[0]].keys()), 1)
-
+def _build_index_dict(traj_files: dict, chr_range: range, mode: str):
     subcompartments = []
     for chr in chr_range:
         try:
@@ -247,6 +53,125 @@ def radial_density(
 
     elif mode == "all":
         index = {"all": [i for i, _ in enumerate(subcompartments)]}
+
+    elif mode == "chr":
+        index = {str(chr): [] for chr in chr_range}
+        i = 0
+        for chr in chr_range:
+            index[str(chr)].extend(
+                list(range(i, i + len(traj_files[chr]["1"])))
+            )
+            i += len(traj_files[chr]["1"])
+
+    return index
+
+
+def lamina_distance(
+    nucleus_path: str,
+    chr_filename: str = "nucleus_",
+    radius: float = None,
+    mode: str = "compartments",
+    frames: range = None,
+    chr_range: range = range(1, 47),
+):
+    traj_files = {
+        chr: h5py.File(
+            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
+        )
+        for chr in chr_range
+    }
+
+    if frames is None:
+        frames = range(1, len(traj_files[chr_range[0]].keys()), 1)
+
+    index = _build_index_dict(traj_files, chr_range, mode)
+
+    distances = {}
+    for key in index.keys():
+        distances[key] = []
+
+    for n, frame in enumerate(frames):
+        if n % 100 == 0:
+            print(f"Analyzing frame {frame}", flush=True)
+        frame_nucleus = np.concatenate(
+            [
+                np.array(traj_files[chr][str(frame)])
+                for chr in chr_range
+            ]
+        )
+
+        frame_distances = radius - np.linalg.norm(
+            frame_nucleus, axis=1
+        )
+        for key in index.keys():
+            distances[key].extend(frame_distances[index[key]])
+
+    return distances
+
+
+def distance_to_center(
+    nucleus_path: str,
+    chr_filename: str = "nucleus_",
+    mode: str = "compartments",
+    frames: range = None,
+    chr_range: range = range(1, 47),
+):
+    traj_files = {
+        chr: h5py.File(
+            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
+        )
+        for chr in chr_range
+    }
+
+    if frames is None:
+        frames = range(1, len(traj_files[chr_range[0]].keys()), 1)
+
+    index = _build_index_dict(traj_files, chr_range, mode)
+
+    distances = {}
+    for key in index.keys():
+        distances[key] = []
+
+    for n, frame in enumerate(frames):
+        if n % 100 == 0:
+            print(f"Analyzing frame {frame}", flush=True)
+        frame_nucleus = np.concatenate(
+            [
+                np.array(traj_files[chr][str(frame)])
+                for chr in chr_range
+            ]
+        )
+
+        distance_to_center = np.linalg.norm(
+            frame_nucleus - np.mean(frame_nucleus, axis=0), axis=1
+        )
+
+        for key in index.keys():
+            distances[key].extend(distance_to_center[index[key]])
+
+    return distances
+
+
+def radial_density(
+    nucleus_path: str,
+    chr_filename: str = "nucleus_",
+    radius: float = None,
+    mode: str = "compartments",
+    frames: range = None,
+    chr_range: range = range(46),
+    nbins: int = 100,
+):
+    traj_files = {
+        chr: h5py.File(
+            f"{nucleus_path}/{chr_filename}{chr}.cndb", "r"
+        )
+        for chr in chr_range
+    }
+
+    if frames is None:
+        frames = range(1, len(traj_files[chr_range[0]].keys()), 1)
+
+    index = _build_index_dict(traj_files, chr_range, mode)
 
     radial_density = {}
     for key in index.keys():
