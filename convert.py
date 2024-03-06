@@ -10,6 +10,7 @@ def cndb2xtc(
     topfile: str = None,
     filename: str = None,
     frames=[1, None, 1],
+    center_of_mass: bool = False,
 ):
     if filename is None:
         filename, _ = os.path.splitext(cndb_file)
@@ -17,6 +18,9 @@ def cndb2xtc(
     reader = ctools.cndbTools()
     reader.load(filename=cndb_file)
     positions = reader.xyz(frames=frames)
+
+    if center_of_mass:
+        positions = np.mean(positions, axis=1, keepdims=True)
 
     if topfile is None:
         annotations = reader.ChromSeq
