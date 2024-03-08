@@ -27,11 +27,11 @@ def cndb2xtc(
         chr2aa = {
             "A1": "ASP",
             "A2": "GLU",
-            "B1": "ARG",
+            "B1": "HIS",
             "B2": "LYS",
-            "B3": "HIS",
-            "B4": "HIS",
-            "NA": "GLY",
+            "B3": "ARG",
+            "B4": "ARG",
+            "NA": "ASN",
         }
 
         with open(filename + ".pdb", "w") as pdb_file:
