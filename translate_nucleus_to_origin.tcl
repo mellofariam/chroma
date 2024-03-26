@@ -49,4 +49,4 @@ for {set x 0} {$x <= 45} {incr x} {
     mol modmaterial 5 $x AOChalky
 
 }
-color change rgb 7 green 0.280000 0.500000 0.120000
+color change rgb 7 0.280000 0.500000 0.120000
