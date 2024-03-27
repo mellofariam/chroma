@@ -428,6 +428,10 @@ def soft_core_inter(
         opt=True,
     )
 
+    if np.count_nonzero(inter_distances) != inter_distances.size:
+        print("WARNING! There are beads with the same coordinates!")
+        print("Lennard-Jones calculation will generate exceptions.")
+
     r0 = sigma * ((1 + np.sqrt(Ecut / 2 / epsilon)) / 2) ** (-1 / 6)
 
     return np.heaviside(
