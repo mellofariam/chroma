@@ -218,7 +218,9 @@ def ideal_chromosome(
         periodic=False,
         opt=True,
     )
-    genomic_distance = np.abs(np.diff(non_bounded_pairs, axis=1))
+    genomic_distance = np.abs(
+        np.diff(non_bounded_pairs, axis=1)
+    ).reshape(-1)
     gamma = (
         np.divide(gamma1, np.log(genomic_distance))
         + np.divide(gamma2, genomic_distance)
