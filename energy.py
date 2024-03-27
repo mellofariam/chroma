@@ -54,7 +54,7 @@ def FENE_bonds(
 
     bonded_pairs = np.asarray(
         [[i, i + 1] for i in range(xyz.shape[1] - 1)]
-    ).transpose()
+    )
 
     bond_length = compute_distances_core(
         xyz,
@@ -74,7 +74,7 @@ def hard_core(
 
     bonded_pairs = np.asarray(
         [[i, i + 1] for i in range(xyz.shape[1] - 1)]
-    ).transpose()
+    )
 
     bond_length = compute_distances_core(
         xyz,
@@ -117,7 +117,7 @@ def angle(
         )
     )
 
-    return ka * [1 - np.cos(angles - theta0)]
+    return ka * (1 - np.cos(angles - theta0))
 
 
 def _lennard_jones(rij, epsilon, sigma):
@@ -152,7 +152,7 @@ def soft_core_intra(
     ) * _lennard_jones(
         non_bounded_distances, sigma, epsilon
     ) * np.heaviside(
-        r0 - non_bounded_distances, 1
+        non_bounded_distances - r0, 1
     ) + np.heaviside(
         r0 - non_bounded_distances, 0
     ) * 1 / 2 * Ecut * (
@@ -205,12 +205,12 @@ def ideal_chromosome(
     rc: float = 1.78,
 ) -> np.ndarray:
 
-    non_bounded_pairs = np.asarray(
-        (
-            set(np.triu_indices(xyz.shape[1], k=dmin))
-            & set(np.tril_indices(xyz.shape[1], k=dmax))
-        )
-    ).transpose()
+    upper_tri = set(zip(*np.triu_indices(xyz.shape[1], k=dmin)))
+    lower_tri = set(zip(*np.tril_indices(xyz.shape[1], k=dmax)))
+
+    non_bounded_pairs_set = upper_tri & lower_tri
+
+    non_bounded_pairs = np.array(list(non_bounded_pairs_set))
 
     non_bounded_distances = compute_distances_core(
         xyz,
@@ -432,7 +432,7 @@ def soft_core_inter(
     ) * _lennard_jones(
         inter_distances, sigma, epsilon
     ) * np.heaviside(
-        r0 - inter_distances, 1
+        inter_distances - r0, 1
     ) + np.heaviside(
         r0 - inter_distances, 0
     ) * 1 / 2 * Ecut * (
