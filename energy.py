@@ -357,7 +357,8 @@ def type_to_type_inter(
     report_contact_annot: bool = False,
 ):
     xyz = np.concatenate([xyz_ref, xyz_inter], axis=1)
-    annotations = annotations_ref.extend(annotations_inter)
+    annotations = annotations_ref.copy()
+    annotations.extend(annotations_inter)
 
     index_ref = [x for x in range(xyz_ref.shape[1])]
     index_inter = [
@@ -365,7 +366,7 @@ def type_to_type_inter(
     ]
 
     inter_pairs = np.asarray(
-        itertools.product(index_ref, index_inter)
+        list(itertools.product(index_ref, index_inter))
     )
 
     inter_distances = compute_distances_core(
@@ -417,7 +418,7 @@ def soft_core_inter(
     ]
 
     inter_pairs = np.asarray(
-        itertools.product(index_ref, index_inter)
+        list(itertools.product(index_ref, index_inter))
     )
 
     inter_distances = compute_distances_core(
