@@ -235,7 +235,7 @@ def reduce_resolution(traj, divide_by=20):
 
 
 @numba.njit(fastmath=True, parallel=True)
-def compute_distances_inter(A, B):
+def compute_distances(A, B):
     """
     Refer to https://github.com/numba/numba-scipy/issues/38
     """
@@ -253,26 +253,4 @@ def compute_distances_inter(A, B):
             for k in range(A.shape[1]):
                 acc += (A[i, k] - B[j, k]) ** 2
             C[i, j] = np.sqrt(acc)
-    return C
-
-
-@numba.njit(fastmath=True, parallel=True)
-def compute_distances_intra(A):
-    """
-    Refer to https://github.com/numba/numba-scipy/issues/38
-    """
-
-    C = np.empty((A.shape[0], A.shape[0]), A.dtype)
-
-    # workaround to get the right datatype for acc
-    init_val_arr = np.zeros(1, A.dtype)
-    init_val = init_val_arr[0]
-
-    for i in numba.prange(A.shape[0]):
-        for j in range(i, A.shape[0]):
-            acc = init_val
-            for k in range(A.shape[1]):
-                acc += (A[i, k] - A[j, k]) ** 2
-            C[i, j] = np.sqrt(acc)
-            C[j, i] = np.sqrt(acc)
     return C
