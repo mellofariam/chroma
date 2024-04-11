@@ -102,18 +102,22 @@ def angle(
     vector_between_bonded_beads = np.diff(xyz, n=1, axis=1)
 
     angles = np.arccos(
-        np.sum(
-            np.multiply(
-                vector_between_bonded_beads[:, :-1, :],
-                vector_between_bonded_beads[:, 1:, :],
+        np.clip(
+            np.sum(
+                np.multiply(
+                    vector_between_bonded_beads[:, :-1, :],
+                    vector_between_bonded_beads[:, 1:, :],
+                ),
+                axis=2,
+            )
+            / np.linalg.norm(
+                vector_between_bonded_beads[:, :-1, :], axis=2
+            )
+            / np.linalg.norm(
+                vector_between_bonded_beads[:, 1:, :], axis=2
             ),
-            axis=2,
-        )
-        / np.linalg.norm(
-            vector_between_bonded_beads[:, :-1, :], axis=2
-        )
-        / np.linalg.norm(
-            vector_between_bonded_beads[:, 1:, :], axis=2
+            -1.0,
+            1.0,
         )
     )
 
