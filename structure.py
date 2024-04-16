@@ -254,3 +254,95 @@ def compute_distances(A, B):
                 acc += (A[i, k] - B[j, k]) ** 2
             C[i, j] = np.sqrt(acc)
     return C
+
+
+@numba.njit(fastmath=True, parallel=True)
+def compute_similarity_from_distances(
+    pairwise_distances, sigma, n_pairs, n_frames
+):
+    """Compute similarity, Q, when the pairwise distances were already computed."""
+    q = np.zeros(n_frames)
+    for lag in numba.prange(n_frames):
+
+        q_lag = np.zeros(n_frames - lag)
+
+        for start in numba.prange(n_frames - lag):
+            total = 0.0
+            for i in numba.prange(len(pairwise_distances[start])):
+                total += np.exp(
+                    -1
+                    / 2
+                    * (
+                        (
+                            (
+                                pairwise_distances[start + lag, i]
+                                - pairwise_distances[start, i]
+                            )
+                            ** 2
+                        )
+                        / (sigma**2)
+                    )
+                )
+
+            q_lag[start] = total / n_pairs
+
+        q[lag] = np.mean(q_lag)
+
+    return q
+
+
+@numba.njit(fastmath=True, parallel=True)
+def compute_similarity_from_positions(
+    positions, sigma, n_pairs, n_frames, starting_neighbor=2
+):
+    """
+    Compute similarity, Q, directly from the positions.
+    Useful when storing the distances is not possible due to the number of beads.
+    """
+    q = np.empty(n_frames, dtype=positions.dtype)
+    for lag in numba.prange(n_frames):
+
+        q_lag = np.empty(n_frames - lag, dtype=positions.dtype)
+
+        pairwise_distances_start = compute_distances(
+            positions[start], positions[start]
+        )
+        pairwise_distances_start = pairwise_distances_start[
+            np.triu_indices_from(
+                pairwise_distances_start, k=starting_neighbor
+            )
+        ]
+        n_pairs = pairwise_distances_start.shape[0]
+
+        for start in numba.prange(n_frames - lag):
+            total = 0.0
+            pairwise_distances_lag = compute_distances(
+                positions[start], positions[start]
+            )
+            pairwise_distances_lag = pairwise_distances_lag[
+                np.triu_indices_from(
+                    pairwise_distances_lag, k=starting_neighbor
+                )
+            ]
+
+            for i in numba.prange(n_pairs):
+                total += np.exp(
+                    -1
+                    / 2
+                    * (
+                        (
+                            (
+                                pairwise_distances_lag[i]
+                                - pairwise_distances_start[i]
+                            )
+                            ** 2
+                        )
+                        / (sigma**2)
+                    )
+                )
+
+            q_lag[start] = total / n_pairs
+
+        q[lag] = np.mean(q_lag)
+
+    return q
