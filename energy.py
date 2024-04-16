@@ -198,6 +198,24 @@ def _contact_switch(
     return 1 / 2 * (1 + np.tanh(mu * (rc - rij)))
 
 
+def loops(
+    xyz: np.ndarray,
+    anchor_annotations: np.ndarray,
+    chi: float = -1.612990,
+    mu: float = 3.22,
+    rc: float = 1.78,
+) -> np.ndarray:
+
+    anchor_distances = compute_distances_core(
+        xyz,
+        atom_pairs=anchor_annotations,
+        periodic=False,
+        opt=True,
+    )
+
+    return chi * _contact_switch(anchor_distances, mu, rc)
+
+
 def ideal_chromosome(
     xyz: np.ndarray,
     dmin: int = 3,
