@@ -300,31 +300,31 @@ def compute_similarity_from_positions(
     Useful when storing the distances is not possible due to the number of beads.
     """
     q = np.empty(n_frames, dtype=positions.dtype)
+
+    interaction_pairs = np.triu_indices(
+        positions.shape[1], k=starting_neighbor
+    )
+    n_pairs = interaction_pairs[0].size
+
     for lag in numba.prange(n_frames):
 
         q_lag = np.empty(n_frames - lag, dtype=positions.dtype)
 
-        pairwise_distances_start = compute_distances(
-            positions[start], positions[start]
-        )
-        pairwise_distances_start = pairwise_distances_start[
-            np.triu_indices_from(
-                pairwise_distances_start, k=starting_neighbor
-            )
-        ]
-        n_pairs = pairwise_distances_start.shape[0]
-
         for start in numba.prange(n_frames - lag):
-            total = 0.0
-            pairwise_distances_lag = compute_distances(
+            pairwise_distances_start = compute_distances(
                 positions[start], positions[start]
             )
+            pairwise_distances_start = pairwise_distances_start[
+                interaction_pairs
+            ]
+            pairwise_distances_lag = compute_distances(
+                positions[start + lag], positions[start + lag]
+            )
             pairwise_distances_lag = pairwise_distances_lag[
-                np.triu_indices_from(
-                    pairwise_distances_lag, k=starting_neighbor
-                )
+                interaction_pairs
             ]
 
+            total = 0.0
             for i in numba.prange(n_pairs):
                 total += np.exp(
                     -1
