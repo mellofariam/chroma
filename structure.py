@@ -257,18 +257,41 @@ def compute_distances(A, B):
 
 
 @numba.njit(fastmath=True, parallel=True)
-def compute_similarity_from_distances(
-    pairwise_distances, sigma, n_pairs, n_frames
-):
+def compute_distances_trajectory(A, B):
+    assert (A.shape[0], A.shape[2]) == (B.shape[0], B.shape[2])
+
+    C = np.empty((A.shape[0], A.shape[1], B.shape[1]), A.dtype)
+
+    # workaround to get the right datatype for acc
+    init_val_arr = np.zeros(1, A.dtype)
+    init_val = init_val_arr[0]
+
+    for t in numba.prange(A.shape[0]):
+        for i in numba.prange(A.shape[1]):
+            for j in range(B.shape[1]):
+                acc = init_val
+                for k in range(A.shape[2]):
+                    acc += (A[t, i, k] - B[t, j, k]) ** 2
+                C[t, i, j] = np.sqrt(acc)
+    return C
+
+
+@numba.njit(fastmath=True, parallel=True)
+def compute_similarity_from_distances(pairwise_distances, sigma):
     """Compute similarity, Q, when the pairwise distances were already computed."""
-    q = np.zeros(n_frames)
+    n_frames = pairwise_distances.shape[0]
+    n_pairs = pairwise_distances.shape[1]
+
+    q = np.empty(n_frames, dtype=pairwise_distances.dtype)
     for lag in numba.prange(n_frames):
 
-        q_lag = np.zeros(n_frames - lag)
+        q_lag = np.empty(
+            n_frames - lag, dtype=pairwise_distances.dtype
+        )
 
         for start in numba.prange(n_frames - lag):
             total = 0.0
-            for i in numba.prange(len(pairwise_distances[start])):
+            for i in numba.prange(n_pairs):
                 total += np.exp(
                     -1
                     / 2
@@ -292,48 +315,59 @@ def compute_similarity_from_distances(
 
 
 @numba.njit(fastmath=True, parallel=True)
+def _get_from_matrix(matrix, row_indices, col_indices):
+    n_elements = len(row_indices)
+    array_of_values = np.empty(n_elements, dtype=matrix.dtype)
+
+    for i in numba.prange(n_elements):
+        array_of_values[i] = matrix[row_indices[i], col_indices[i]]
+
+    return array_of_values
+
+
+@numba.njit(fastmath=True, parallel=True)
 def compute_similarity_from_positions(
-    positions, sigma, n_pairs, n_frames, starting_neighbor=2
+    positions, sigma, starting_neighbor=2
 ):
     """
     Compute similarity, Q, directly from the positions.
     Useful when storing the distances is not possible due to the number of beads.
     """
-    q = np.empty(n_frames, dtype=positions.dtype)
 
-    interaction_pairs = np.triu_indices(
-        positions.shape[1], k=starting_neighbor
-    )
-    n_pairs = interaction_pairs[0].size
+    n_frames = positions.shape[0]
 
-    for lag in numba.prange(n_frames):
+    similarity = np.zeros(n_frames)
+    normalize_by = np.zeros(n_frames)
 
-        q_lag = np.empty(n_frames - lag, dtype=positions.dtype)
+    i, j = np.triu_indices(positions.shape[1], k=starting_neighbor)
+    n_pairs = i.size
 
-        for start in numba.prange(n_frames - lag):
-            pairwise_distances_start = compute_distances(
-                positions[start], positions[start]
-            )
-            pairwise_distances_start = pairwise_distances_start[
-                interaction_pairs
-            ]
+    for start in numba.prange(n_frames):
+        pairwise_distances_start = compute_distances(
+            positions[start], positions[start]
+        )
+        pairwise_distances_start = _get_from_matrix(
+            pairwise_distances_start, i, j
+        )
+
+        for lag in numba.prange(n_frames - start):
             pairwise_distances_lag = compute_distances(
                 positions[start + lag], positions[start + lag]
             )
-            pairwise_distances_lag = pairwise_distances_lag[
-                interaction_pairs
-            ]
+            pairwise_distances_lag = _get_from_matrix(
+                pairwise_distances_lag, i, j
+            )
 
             total = 0.0
-            for i in numba.prange(n_pairs):
+            for pair in range(n_pairs):
                 total += np.exp(
                     -1
                     / 2
                     * (
                         (
                             (
-                                pairwise_distances_lag[i]
-                                - pairwise_distances_start[i]
+                                pairwise_distances_lag[pair]
+                                - pairwise_distances_start[pair]
                             )
                             ** 2
                         )
@@ -341,8 +375,9 @@ def compute_similarity_from_positions(
                     )
                 )
 
-            q_lag[start] = total / n_pairs
+            similarity[lag] += total / n_pairs
+            normalize_by[lag] += 1
 
-        q[lag] = np.mean(q_lag)
+    similarity = np.divide(similarity, normalize_by)
 
-    return q
+    return similarity
