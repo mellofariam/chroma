@@ -315,6 +315,53 @@ def compute_similarity_from_distances(pairwise_distances, sigma):
 
 
 @numba.njit(fastmath=True, parallel=True)
+def compute_similarity_from_distances_between_replicas(
+    pairwise_distances, sigma, frames_per_replica
+):
+
+    n_frames = pairwise_distances.shape[0]
+    n_pairs = pairwise_distances.shape[1]
+
+    i = 0
+    indexed_frame_pair = {}
+    for frame1 in range(n_frames):
+        for frame2 in range(frame1 + 1, n_frames):
+            if different_replicas(
+                frame1, frame2, frames_per_replica=frames_per_replica
+            ):
+                indexed_frame_pair[i] = (frame1, frame2)
+                i += 1
+
+    n_similarity_values = len(indexed_frame_pair.keys())
+    similarity = np.empty(
+        n_similarity_values, dtype=pairwise_distances.dtype
+    )
+    for i in numba.prange(n_similarity_values):
+        frame1, frame2 = indexed_frame_pair[numba.int64(i)]
+
+        total = 0.0
+        for pair in numba.prange(n_pairs):
+            total += np.exp(
+                -1
+                / 2
+                * (
+                    (
+                        (
+                            pairwise_distances[frame1, pair]
+                            - pairwise_distances[frame2, pair]
+                        )
+                        ** 2
+                    )
+                    / (sigma**2)
+                )
+            )
+
+        similarity[i] = total / n_pairs
+
+    return similarity
+
+
+@numba.njit(fastmath=True, parallel=True)
 def _get_from_matrix(matrix, row_indices, col_indices):
     n_elements = len(row_indices)
     array_of_values = np.empty(n_elements, dtype=matrix.dtype)
