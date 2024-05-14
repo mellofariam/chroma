@@ -314,6 +314,17 @@ def compute_similarity_from_distances(pairwise_distances, sigma):
     return q
 
 
+@numba.njit(fastmath=True)
+def _different_replicas(frame1, frame2, frames_per_replica):
+    rep1 = (frame1 // frames_per_replica) + 1
+    rep2 = (frame2 // frames_per_replica) + 1
+
+    if rep1 == rep2:
+        return False
+    else:
+        return True
+
+
 @numba.njit(fastmath=True, parallel=True)
 def compute_similarity_from_distances_between_replicas(
     pairwise_distances, sigma, frames_per_replica
@@ -326,7 +337,7 @@ def compute_similarity_from_distances_between_replicas(
     indexed_frame_pair = {}
     for frame1 in range(n_frames):
         for frame2 in range(frame1 + 1, n_frames):
-            if different_replicas(
+            if _different_replicas(
                 frame1, frame2, frames_per_replica=frames_per_replica
             ):
                 indexed_frame_pair[i] = (frame1, frame2)

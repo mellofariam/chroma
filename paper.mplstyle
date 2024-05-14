@@ -12,7 +12,7 @@ font.size: 8.0
 figure.dpi: 1000
 
 # Patch
-patch.linewidth: 0.8
+patch.linewidth: 0.5
 patch.edgecolor: black
 patch.force_edgecolor: True
 
@@ -24,3 +24,4 @@ mathtext.sf: "Helvetica"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
+axes.linewidth: 0.5
