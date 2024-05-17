@@ -18,9 +18,12 @@ patch.force_edgecolor: True
 
 # MathText
 mathtext.fontset: "custom"
+mathtext.default: "regular"
 mathtext.it: "Helvetica:italic"
 mathtext.bf: "Helvetica:bold"
 mathtext.sf: "Helvetica"
+mathtext.cal: "Helvetica:italic"
+mathtext.fallback: "cm"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
