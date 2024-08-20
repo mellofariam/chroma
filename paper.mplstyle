@@ -27,8 +27,11 @@ mathtext.fallback: "cm"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
-axes.linewidth: 0.8
+axes.linewidth: 0.5
 
 # Ticks
 xtick.major.width: 0.5
 ytick.major.width: 0.5
+
+# Lines
+lines.linewidth: 0.8

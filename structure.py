@@ -325,6 +325,130 @@ def _different_replicas(frame1, frame2, frames_per_replica):
         return True
 
 
+def _different_replicas2(frame1, frame2, frames_per_replica):
+    rep1 = (frame1 // frames_per_replica) + 1
+    rep2 = (frame2 // frames_per_replica) + 1
+
+    if rep1 == rep2:
+        return False
+    else:
+        return True
+
+
+@numba.njit(fastmath=True, parallel=True)
+def compute_similarity_from_distances_between_replicas2(
+    pairwise_distances, sigma, frames_per_replica
+):
+
+    n_frames = pairwise_distances.shape[0]
+    n_pairs = pairwise_distances.shape[1]
+
+    list_frame1 = []
+    list_frame2 = []
+    for frame1 in range(n_frames):
+        for frame2 in range(frame1 + 1, n_frames):
+            if _different_replicas(
+                frame1, frame2, frames_per_replica=frames_per_replica
+            ):
+                list_frame1.append(frame1)
+                list_frame2.append(frame2)
+    list_frame1 = np.array(list_frame1)
+    list_frame2 = np.array(list_frame2)
+
+    n_similarity_values = len(list_frame1)
+    similarity = np.empty(
+        n_similarity_values, dtype=pairwise_distances.dtype
+    )
+    for i in numba.prange(n_similarity_values):
+        frame1 = list_frame1[numba.int64(i)]
+        frame2 = list_frame2[numba.int64(i)]
+
+        total = np.sum(
+            np.exp(
+                -1
+                / 2
+                * (
+                    (
+                        (
+                            pairwise_distances[frame1]
+                            - pairwise_distances[frame2]
+                        )
+                        ** 2
+                    )
+                    / (sigma**2)
+                )
+            )
+        )
+
+        similarity[i] = total / n_pairs
+
+    return similarity
+
+
+@numba.njit(fastmath=True, parallel=True)
+def compute_similarity_from_distances_between_replicas3(
+    pairwise_distances, sigma, frame_pairs
+):
+    n_pairs = pairwise_distances.shape[1]
+
+    n_similarity_values = frame_pairs.shape[0]
+
+    similarity = np.empty(
+        n_similarity_values, dtype=pairwise_distances.dtype
+    )
+    sigma_squared = sigma**2
+
+    for i in numba.prange(n_similarity_values):
+        frame1, frame2 = frame_pairs[i]
+
+        total = 0.0
+        for pair in range(n_pairs):
+            diff = (
+                pairwise_distances[frame1, pair]
+                - pairwise_distances[frame2, pair]
+            )
+            total += np.exp(-0.5 * (diff**2) / sigma_squared)
+
+        similarity[i] = total / n_pairs
+
+    return similarity
+
+
+def compute_similarity_from_distances_between_replicas4(
+    pairwise_distances, sigma, frame_pairs
+):
+    n_pairs = pairwise_distances.shape[1]
+
+    n_similarity_values = frame_pairs.shape[0]
+
+    similarity = np.empty(
+        n_similarity_values, dtype=pairwise_distances.dtype
+    )
+    sigma_squared = sigma**2
+
+    for i in range(n_similarity_values):
+        frame1, frame2 = frame_pairs[i]
+
+        similarity[i] = (
+            np.sum(
+                np.exp(
+                    -0.5
+                    * (
+                        (
+                            pairwise_distances[frame1]
+                            - pairwise_distances[frame2]
+                        )
+                        ** 2
+                    )
+                    / sigma_squared
+                )
+            )
+            / n_pairs
+        )
+
+    return similarity
+
+
 @numba.njit(fastmath=True, parallel=True)
 def compute_similarity_from_distances_between_replicas(
     pairwise_distances, sigma, frames_per_replica
