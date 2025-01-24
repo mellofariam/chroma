@@ -32,6 +32,8 @@ axes.linewidth: 0.5
 # Ticks
 xtick.major.width: 0.5
 ytick.major.width: 0.5
+xtick.minor.width: 0.5
+ytick.minor.width: 0.5
 
 # Lines
 lines.linewidth: 0.8
