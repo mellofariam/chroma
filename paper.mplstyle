@@ -9,7 +9,7 @@ font.sans-serif: "Helvetica"
 font.size: 8.0
 
 # Figure
-figure.dpi: 1000
+figure.dpi: 300
 
 # Patch
 patch.linewidth: 0.5
