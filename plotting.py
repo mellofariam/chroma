@@ -27,7 +27,7 @@ class PlotContactMap:
         self, contact_map, resolution, scale="log", vmin=1e-4, vmax=1
     ):
         self.ax.set_xlim((0, contact_map.shape[0]))
-        self.ax.set_ylim((0, contact_map.shape[1]))
+        self.ax.set_ylim((contact_map.shape[1], 0))
 
         self.ax.set_xticks([])
         self.ax.set_yticks([])
@@ -94,7 +94,7 @@ class PlotContactMap:
     ):
         track_ax = self.divider.append_axes(loc, size=size, pad=pad)
 
-        track = track_ax.plot(range(len(track)), track, **kwargs)
+        track_ax.plot(range(len(track)), track, **kwargs)
 
         track_ax.set_xlim((0, len(track)))
         track_ax.set_xticks([])
