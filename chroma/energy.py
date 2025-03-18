@@ -1,6 +1,7 @@
+import itertools
+
 import numpy as np
 import numpy.typing as npt
-import itertools
 from mdtraj.geometry.distance import compute_distances_core
 
 

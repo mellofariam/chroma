@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=75.8"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "chroma"
@@ -14,9 +14,16 @@ requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
 ]
-license = "MIT"
-license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "numpy >= 1.26.4",
+    "mdtraj >= 1.10.0",
+    "OpenMiChroM >= 1.1.0",
+    "matplotlib >= 3.10.1",
+    "h5py >= 3.13.0",
+    "numba >= 0.59.1",
+]
 
 [project.urls]
 Homepage = "https://github.com/mellofariam/chroma"
