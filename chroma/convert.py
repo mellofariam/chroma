@@ -137,7 +137,37 @@ def write_pdb_from_xyz(xyz, filename="frame", resseq=None):
         pdb_file.write("END")
 
 
-def count2prob(hic_matrix):
+def count2prob(
+    hic_matrix,
+    find_centromere=True,
+    centromere_indices=None,
+    remove_nan=True,
+):
+    """
+    Convert a Hi-C count matrix to a probability matrix.
+
+    Parameters
+    ----------
+    hic_matrix : numpy.ndarray
+        The Hi-C count matrix.
+    find_centromere : bool, optional
+        Whether to find the centromere. Defaults to True.
+    centromere_indices : list, optional
+        Indices of the centromere. Ignored if `find_centromere` is False. Defaults to None.
+    remove_nan : bool, optional
+        Whether to remove NaN values. Defaults to True.
+
+    Returns
+    -------
+    numpy.ndarray
+        The probability matrix.
+    """
+
+    if find_centromere and centromere_indices is not None:
+        print(
+            "Warning: `find_centromere` will be ignored, since `centromere_indices` is provided."
+        )
+
     prob_matrix = np.triu(hic_matrix, k=1)
 
     for i in range(prob_matrix.shape[0] - 1):
@@ -158,22 +188,37 @@ def count2prob(hic_matrix):
             ):
                 prob_matrix[i, j] = np.mean(
                     prob_matrix.diagonal(offset=np.abs(i - j))[
-                        prob_matrix.diagonal(offset=np.abs(i - j))
-                        < 1.0
+                        (
+                            0.0
+                            < prob_matrix.diagonal(
+                                offset=np.abs(i - j)
+                            )
+                        )
+                        & (
+                            prob_matrix.diagonal(offset=np.abs(i - j))
+                            < 1.0
+                        )
                     ]
                 )
 
-    prob_matrix += prob_matrix.transpose() + np.diag(
-        np.ones(prob_matrix.shape[0])
-    )
+    prob_matrix += prob_matrix.transpose()
 
     ## remove centromere:
-    idx_to_remove = []
-    for i in range(hic_matrix.shape[0]):
-        if hic_matrix[i, :].max() == 0:
-            idx_to_remove.append(i)
+    if find_centromere:
+        idx_to_remove = []
+        for i in range(hic_matrix.shape[0]):
+            if hic_matrix[i, :].max() == 0:
+                idx_to_remove.append(i)
+    else:
+        idx_to_remove = centromere_indices
 
-    prob_matrix[idx_to_remove, :] = 0.0
-    prob_matrix[:, idx_to_remove] = 0.0
+    prob_matrix += np.identity(prob_matrix.shape[0])
+
+    if idx_to_remove is not None:
+        prob_matrix[idx_to_remove, :] = 0.0
+        prob_matrix[:, idx_to_remove] = 0.0
+
+    if remove_nan:
+        prob_matrix[np.isnan(prob_matrix)] = 0.0
 
     return prob_matrix
