@@ -1,9 +1,14 @@
+import os
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-plt.style.use("chroma.paper")
-
+style_path = os.path.join(
+    os.path.dirname(__file__),
+    "chroma",
+    "paper.mplstyle",
+)
+plt.style.use(style_path)
 
 class PlotContactMap:
 
