@@ -28,3 +28,9 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/mellofariam/chroma"
 Issues = "https://github.com/mellofariam/chroma/issues"
+
+[tool.setuptools]
+packages = ["chroma"]
+
+[tool.setuptools.package-data]
+"chroma" = ["*.mplstyle"]
