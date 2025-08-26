@@ -9,7 +9,7 @@ font.sans-serif: "Helvetica"
 font.size: 8.0
 
 # Figure
-figure.dpi: 300
+figure.dpi: 450
 
 # Patch
 patch.linewidth: 0.5
@@ -18,12 +18,14 @@ patch.force_edgecolor: True
 
 # MathText
 mathtext.fontset: "custom"
-mathtext.default: "regular"
+mathtext.default: "rm"
+mathtext.rm: "Helvetica"
 mathtext.it: "Helvetica:italic"
 mathtext.bf: "Helvetica:bold"
 mathtext.sf: "Helvetica"
+mathtext.tt: "Helvetica"
 mathtext.cal: "Helvetica:italic"
-mathtext.fallback: "cm"
+mathtext.fallback: "Symbol"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
@@ -37,3 +39,8 @@ ytick.minor.width: 0.5
 
 # Lines
 lines.linewidth: 0.8
+
+# --- Vector export: embed fonts / outlines ---
+# PDF/EPS: use TrueType (Type 42), which embeds the actual font
+pdf.fonttype: 42
+ps.fonttype: 42
