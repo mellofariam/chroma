@@ -7,9 +7,9 @@ import OpenMiChroM.CndbTools as ctools
 
 def cndb2xtc(
     cndb_file: str,
-    topfile: str = None,
-    filename: str = None,
-    frames=[1, None, 1],
+    topfile: str | None = None,
+    filename: str | None = None,
+    frames: list[int] = [1, None, 1],
     center_of_mass: bool = False,
 ):
     if filename is None:
