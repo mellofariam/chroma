@@ -139,6 +139,7 @@ def write_pdb_from_xyz(xyz, filename="frame", resseq=None):
 
 def count2prob(
     hic_matrix,
+    norm="first_neighbor",
     find_centromere=True,
     centromere_indices=None,
     remove_nan=True,
@@ -150,6 +151,9 @@ def count2prob(
     ----------
     hic_matrix : numpy.ndarray
         The Hi-C count matrix.
+    norm : str, optional
+        Normalization method: 'first_neighbor', 'average_first_neighbor', or 'max'.
+        Defaults to 'first_neighbor'.
     find_centromere : bool, optional
         Whether to find the centromere. Defaults to True.
     centromere_indices : list, optional
@@ -170,36 +174,58 @@ def count2prob(
 
     prob_matrix = np.triu(hic_matrix, k=1)
 
+    average_first_neighbor = np.nanmean(
+        prob_matrix.diagonal(offset=1)[
+            prob_matrix.diagonal(offset=1) > 0
+        ]
+    )
+
     for i in range(prob_matrix.shape[0] - 1):
-        if prob_matrix[i, i + 1]:
-            prob_matrix[i, :] /= prob_matrix[
-                i, i + 1
-            ]  ## normalize by the first neighbor
+        if norm == "first_neighbor":
+            if prob_matrix[i, i + 1]:
+                prob_matrix[i, :] /= prob_matrix[
+                    i, i + 1
+                ]  ## normalize by the first neighbor
+            else:
+                prob_matrix[i, :] = 0.0
+        elif norm == "average_first_neighbor":
+            prob_matrix[i, :] /= average_first_neighbor
+            if prob_matrix[i, i + 1]:
+                prob_matrix[i, i + 1] = (
+                    1.0  ## set the first neighbor to 1
+                )
+        elif norm == "max":
+            prob_matrix[i, :] /= np.nanmax(prob_matrix[i, :])
         else:
-            prob_matrix[i, :] = 0.0
+            raise ValueError(
+                "`norm` must be `first_neighbor`, `average_first_neighbor`, or `max`"
+            )
 
     ## correct for the values greater than the 1st neighbor
-    for i in range(prob_matrix.shape[0]):
-        for j in range(i, prob_matrix.shape[1]):
-            if (
-                i != j
-                and np.abs(i - j) > 1
-                and prob_matrix[i, j] > 1.0
-            ):
-                prob_matrix[i, j] = np.mean(
-                    prob_matrix.diagonal(offset=np.abs(i - j))[
-                        (
-                            0.0
-                            < prob_matrix.diagonal(
-                                offset=np.abs(i - j)
+    if norm in ["first_neighbor", "average_first_neighbor"]:
+        for i in range(prob_matrix.shape[0]):
+            for j in range(i, prob_matrix.shape[1]):
+                if (
+                    i != j
+                    and np.abs(i - j) > 1
+                    and prob_matrix[i, j] > 1.0
+                ):
+                    prob_matrix[i, j] = np.mean(
+                        prob_matrix.diagonal(offset=np.abs(i - j))[
+                            (
+                                0.0
+                                < prob_matrix.diagonal(
+                                    offset=np.abs(i - j)
+                                )
                             )
-                        )
-                        & (
-                            prob_matrix.diagonal(offset=np.abs(i - j))
-                            < 1.0
-                        )
-                    ]
-                )
+                            & (
+                                prob_matrix.diagonal(
+                                    offset=np.abs(i - j)
+                                )
+                                < 1.0
+                            )
+                        ]
+                    )
 
     prob_matrix += prob_matrix.transpose()
 
