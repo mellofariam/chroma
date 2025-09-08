@@ -25,7 +25,6 @@ mathtext.bf: "Helvetica:bold"
 mathtext.sf: "Helvetica"
 mathtext.tt: "Helvetica"
 mathtext.cal: "Helvetica:italic"
-mathtext.fallback: "Symbol"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
