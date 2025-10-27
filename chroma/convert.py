@@ -16,7 +16,7 @@ def cndb2xtc(
         filename, _ = os.path.splitext(cndb_file)
 
     reader = ctools.cndbTools()
-    reader.load(filename=cndb_file)
+    reader.load(fileName=cndb_file)
     positions = reader.xyz(frames=frames)
 
     if center_of_mass:
