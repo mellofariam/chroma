@@ -1,11 +1,15 @@
+import importlib.resources as resources
 import os
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import importlib.resources as resources
 
-with resources.path("chroma", "paper.mplstyle") as style_path:
-    plt.style.use(str(style_path))
+try:
+    with resources.as_file(resources.files("chroma") / "paper.mplstyle") as style_path:
+        plt.style.use(str(style_path))
+except FileNotFoundError:
+    pass
     
 class PlotContactMap:
 
