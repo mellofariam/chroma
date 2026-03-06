@@ -1,0 +1,58 @@
+# Legend
+legend.fancybox: False
+legend.edgecolor: "inherit"
+legend.framealpha: 1.0
+legend.facecolor: "white"
+
+# Fonts
+font.sans-serif: "Helvetica Neue"
+font.size: 27
+
+# Figure
+figure.dpi: 450
+
+# Patch
+patch.linewidth: 2.0
+patch.edgecolor: black
+patch.force_edgecolor: True
+
+# MathText
+mathtext.fontset: "custom"
+mathtext.default: "rm"
+mathtext.rm: "Helvetica Neue"
+mathtext.it: "Helvetica Neue:italic"
+mathtext.bf: "Helvetica Neue:bold"
+mathtext.sf: "Helvetica Neue"
+mathtext.tt: "Helvetica Neue"
+mathtext.cal: "Helvetica Neue:italic"
+
+# Axes
+axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
+axes.linewidth: 2.0
+
+# Ticks
+xtick.major.width: 2.0
+ytick.major.width: 2.0
+xtick.minor.width: 2.0
+ytick.minor.width: 2.0
+
+xtick.major.pad: 15
+ytick.major.pad: 15
+xtick.minor.pad: 15
+ytick.minor.pad: 15
+
+xtick.major.size: 10
+ytick.major.size: 10
+xtick.minor.size: 10
+ytick.minor.size: 10
+
+# Labels
+axes.labelpad: 10
+
+# Lines
+lines.linewidth: 2.0
+
+# --- Vector export: embed fonts / outlines ---
+# PDF/EPS: use TrueType (Type 42), which embeds the actual font
+pdf.fonttype: 42
+ps.fonttype: 42
