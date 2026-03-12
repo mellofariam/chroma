@@ -5,11 +5,11 @@ legend.framealpha: 1.0
 legend.facecolor: "white"
 
 # Fonts
-font.sans-serif: "Helvetica"
+font.sans-serif: "Helvetica Neue"
 font.size: 8.0
 
 # Figure
-figure.dpi: 450
+figure.dpi: 1000
 
 # Patch
 patch.linewidth: 0.5
@@ -19,12 +19,12 @@ patch.force_edgecolor: True
 # MathText
 mathtext.fontset: "custom"
 mathtext.default: "rm"
-mathtext.rm: "Helvetica"
-mathtext.it: "Helvetica:italic"
-mathtext.bf: "Helvetica:bold"
-mathtext.sf: "Helvetica"
-mathtext.tt: "Helvetica"
-mathtext.cal: "Helvetica:italic"
+mathtext.rm: "Helvetica Neue"
+mathtext.it: "Helvetica Neue:italic"
+mathtext.bf: "Helvetica Neue:bold"
+mathtext.sf: "Helvetica Neue"
+mathtext.tt: "Helvetica Neue"
+mathtext.cal: "Helvetica Neue:italic"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
