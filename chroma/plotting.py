@@ -150,6 +150,13 @@ class PlotContactMap:
                 )
             colors[key] = mcolors.to_rgba(color)
 
+        possible_annotations = set(annotations)
+
+        if not possible_annotations.issubset(colors.keys()):
+            raise ValueError(
+                "Some annotations do not have corresponding colors defined"
+            )
+
         colors_arr = np.array(
             [
                 colors.get(str(x), (1, 1, 1))
