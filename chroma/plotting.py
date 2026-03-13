@@ -35,9 +35,6 @@ class PlotContactMap:
         self.divider = make_axes_locatable(ax)
 
     def plot_hic(self, contact_map, scale="log", vmin=1e-4, vmax=1):
-        self.ax.set_xlim((0, contact_map.shape[0]))
-        self.ax.set_ylim((contact_map.shape[1], 0))
-
         self.ax.set_xticks([])
         self.ax.set_yticks([])
 
