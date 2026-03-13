@@ -3,18 +3,23 @@ import os
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import numpy as np
 
 try:
-    with resources.as_file(resources.files("chroma") / "paper.mplstyle") as style_path:
+    with resources.as_file(
+        resources.files("chroma") / "paper.mplstyle"
+    ) as style_path:
         plt.style.use(str(style_path))
 except FileNotFoundError:
     pass
-    
+
+
 class PlotContactMap:
 
     def __init__(self, fig=None, ax=None) -> None:
-        self.cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        self.cmap = mcolors.LinearSegmentedColormap.from_list(
             "bright_red", [(1, 1, 1), (1, 0, 0)]
         )
 
@@ -29,9 +34,7 @@ class PlotContactMap:
         self.ax = ax
         self.divider = make_axes_locatable(ax)
 
-    def plot_hic(
-        self, contact_map, resolution, scale="log", vmin=1e-4, vmax=1
-    ):
+    def plot_hic(self, contact_map, scale="log", vmin=1e-4, vmax=1):
         self.ax.set_xlim((0, contact_map.shape[0]))
         self.ax.set_ylim((contact_map.shape[1], 0))
 
@@ -41,13 +44,14 @@ class PlotContactMap:
         if scale == "log":
             im = self.ax.imshow(
                 contact_map,
-                norm=mpl.colors.LogNorm(vmin=vmin, vmax=vmax),
+                norm=mcolors.LogNorm(vmin=vmin, vmax=vmax),
                 cmap=self.cmap,
             )
         elif scale == "linear":
             im = self.ax.imshow(
                 contact_map,
-                norm=mpl.colors.LogNorm(vmin=vmin, vmax=vmax),
+                vmax=vmax,
+                vmin=vmin,
                 cmap=self.cmap,
             )
         else:
@@ -107,3 +111,74 @@ class PlotContactMap:
         track_ax.set_yticks([])
 
         return track_ax
+
+    def add_compartment_annotations(
+        self,
+        annotations: list[str],
+        colors: dict | str = "subcompartment",
+        loc: str = "left",
+        size=0.05,
+        pad=0.05,
+    ):
+        if colors == "subcompartment":
+            colors = {
+                "A1": "red",
+                "A2": "orange",
+                "B1": "blue",
+                "B2": "cyan",
+                "B3": "green",
+                "B4": "lightgreen",
+                "NA": "gray",
+            }
+        elif colors == "compartment":
+            colors = {
+                "A": "red",
+                "B": "blue",
+                "NA": "gray",
+            }
+        elif isinstance(colors, dict):
+            pass
+        else:
+            raise ValueError(
+                "Unsupported color scheme for compartment annotations"
+            )
+
+        for key, color in colors.items():
+            if not mcolors.is_color_like(color):
+                raise ValueError(
+                    f"Invalid color for compartment annotation: {color}"
+                )
+            colors[key] = mcolors.to_rgba(color)
+
+        colors_arr = np.array(
+            [
+                colors.get(str(x), (1, 1, 1))
+                for x in annotations
+            ],
+            dtype=np.float32,
+        )
+        annot_ax = self.divider.append_axes(loc, size=size, pad=pad)
+
+        if loc in {"top", "bottom"}:
+            img = colors_arr[np.newaxis, :, :]
+            annot_ax.imshow(
+                img,
+                aspect="auto",
+                interpolation="none",
+                origin="upper",
+            )
+        elif loc in {"left", "right"}:
+            img = colors_arr[:, np.newaxis, :]
+            annot_ax.imshow(
+                img,
+                aspect="auto",
+                interpolation="none",
+                origin="upper",
+            )
+        else:
+            raise ValueError(f"Unsupported AB-bar location: {loc}")
+
+        annot_ax.set_xticks([])
+        annot_ax.set_yticks([])
+
+        return annot_ax
