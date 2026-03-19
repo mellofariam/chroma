@@ -1,0 +1,42 @@
+# Legend
+legend.fancybox: False
+legend.edgecolor: "inherit"
+legend.framealpha: 1.0
+legend.facecolor: "white"
+
+# Fonts
+font.family: sans-serif
+font.sans-serif: Helvetica Neue, Helvetica, Arial, Nimbus Sans, Liberation Sans, DejaVu Sans
+font.size: 8.0
+
+# Figure
+figure.dpi: 1000
+
+# Patch
+patch.linewidth: 0.5
+patch.edgecolor: black
+patch.force_edgecolor: True
+
+# MathText
+text.usetex: True
+text.latex.preamble: \usepackage{amsmath} \usepackage[scaled]{helvet} \usepackage[helvet]{sfmath} \renewcommand{\familydefault}{\sfdefault}
+
+# Axes
+axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
+axes.linewidth: 0.5
+axes.titlesize: 8
+axes.labelsize: 8
+
+# Ticks
+xtick.major.width: 0.5
+ytick.major.width: 0.5
+xtick.minor.width: 0.5
+ytick.minor.width: 0.5
+
+# Lines
+lines.linewidth: 0.8
+
+# --- Vector export: embed fonts / outlines ---
+# PDF/EPS: use TrueType (Type 42), which embeds the actual font
+pdf.fonttype: 42
+ps.fonttype: 42
