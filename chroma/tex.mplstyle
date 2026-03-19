@@ -19,7 +19,7 @@ patch.force_edgecolor: True
 
 # MathText
 text.usetex: True
-text.latex.preamble: "\usepackage{amsmath} \usepackage[scaled]{helvet} \usepackage[helvet]{sfmath} \renewcommand{\familydefault}{\sfdefault}"
+text.latex.preamble: "\usepackage{amsmath} \PassOptionsToPackage{scaled}{helvet} \usepackage[helvet]{sfmath} \renewcommand{\familydefault}{\sfdefault}"
 
 # Axes
 axes.prop_cycle: cycler(color=["navy", "orange", "teal", "mediumorchid", "red", "forestgreen"])
